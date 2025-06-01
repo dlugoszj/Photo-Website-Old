@@ -19,7 +19,7 @@ interface GalleryItem {
 const AlbumGallery: React.FC = () => {
   const { categoryId } = useParams();
   // console.log(useParams().has('categoryId'));
-  let test = useParams();
+  // let test = useParams();
   if (!categoryId) {
     return <div className="text-white">Invalid gallery ID</div>;
   }

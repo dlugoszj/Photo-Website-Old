@@ -1,12 +1,9 @@
-import { useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import ImageGallery from "./pages/Home/ImageGallery";
-import Admin from "./pages/Admin/Admin";
 import Login from "./pages/Admin/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
-import AlbumGallery from "./pages/Home/AlbumGallery";
 import GenericGallery from "./pages/Home/GenericGallery";
 
 function App() {

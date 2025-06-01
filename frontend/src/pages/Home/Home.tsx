@@ -1,8 +1,5 @@
-import NavBar from "../../components/NavBar";
 import "./home.css";
 import "/src/assets/css/fonts.css";
-import AlbumGallery from "./AlbumGallery";
-import CategoryGallery from "./CategoryGallery";
 import GenericGallery from "./GenericGallery";
 
 const Home = () => {

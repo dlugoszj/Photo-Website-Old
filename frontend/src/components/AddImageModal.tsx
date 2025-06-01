@@ -9,7 +9,7 @@ interface AddAlbumModalProps {
 }
 
 const AddImageModal: React.FC<AddAlbumModalProps> = ({ onClose, onSave, collectionPath }) => {
-  const [title, setTitle] = useState("");
+  //   const [title, setTitle] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const isSaveDisabled = !file;
   const [width, setWidth] = useState(0);

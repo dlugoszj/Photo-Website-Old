@@ -3,7 +3,6 @@ import {
   getFirestore,
   collection,
   getDocs,
-  addDoc,
   updateDoc,
   deleteDoc,
   doc,
@@ -17,7 +16,7 @@ import "./photogrid.css";
 import { Link, useLocation } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import NavBar from "../../components/NavBar";
-import Modal from "../../components/Modal";
+// import Modal from "../../components/Modal";
 import AddAlbumModal from "../../components/AddModal";
 import DeleteModal from "../../components/DeleteModal";
 import EditModal from "../../components/EditModal";
@@ -40,7 +39,7 @@ type galleryType = {
 
 const handleDelete = async (collection: string, docId: string) => {
   await deleteDoc(doc(db, collection, docId))
-    .then((snapshot) => {
+    .then((_snapshot) => {
       console.log("Uploaded a blob or file!");
     })
     .catch((error) => {
@@ -60,7 +59,7 @@ const handleUpdate = async (collection: string, docId: string, newTitle: string,
   } else {
     const storageRef = await ref(storage, "/" + newCoverImage.name);
     await uploadBytes(storageRef, newCoverImage)
-      .then((snapshot) => {
+      .then((_snapshot) => {
         console.log("Uploaded a blob or file!");
       })
       .catch((error) => {
@@ -128,7 +127,7 @@ const handleSaveAlbum = async (title: string, file: File | null, collectionPath:
   console.log(collectionPath);
   const storageRef = await ref(storage, "/" + file.name);
   await uploadBytes(storageRef, file)
-    .then((snapshot) => {
+    .then((_snapshot) => {
       console.log("Uploaded a blob or file!");
     })
     .catch((error) => {

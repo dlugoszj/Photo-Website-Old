@@ -2,13 +2,13 @@ import { useParams } from "react-router-dom";
 import NavBar from "../../components/NavBar";
 import "./home.css";
 import "/src/assets/css/fonts.css";
-import React, { useCallback, useEffect, useState } from "react";
-import { getFirestore, collection, getDocs, doc, setDoc, onSnapshot, deleteDoc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL, uploadBytes } from "firebase/storage";
 import { app } from "../../firebaseConfig"; // Ensure this points to your Firebase setup
 import "./photogrid.css";
 import Gallery from "react-photo-gallery";
-import ImageStyle from "./ImageStyle";
+// import ImageStyle from "./ImageStyle";
 import { RenderImageProps } from "react-photo-gallery";
 import DeleteImageModal from "../../components/DeleteImageModal";
 import AddImageModal from "../../components/AddImageModal";
@@ -34,7 +34,7 @@ const handleSaveAlbum = async (imageHeight: number, imageWidth: number, file: Fi
   console.log(collectionPath);
   const storageRef = await ref(storage, "/" + file.name);
   await uploadBytes(storageRef, file)
-    .then((snapshot) => {
+    .then((_snapshot) => {
       console.log("Uploaded a blob or file!");
     })
     .catch((error) => {
@@ -51,7 +51,7 @@ const handleDelete = async (collection: string, docId: string) => {
   console.log(collection);
   console.log(docId);
   await deleteDoc(doc(db, collection, docId))
-    .then((snapshot) => {
+    .then((_snapshot) => {
       console.log("Uploaded a blob or file!");
     })
     .catch((error) => {
@@ -94,7 +94,7 @@ const ImageGallery: React.FC<ImageGalleryInfo> = ({ adminMode = false }) => {
   }, [categoryId, galleryId]);
 
   const [openModal, setOpenModal] = useState<null | "add" | "delete" | "edit">(null);
-  const [selectedAlbum, setSelectedAlbum] = useState<string>();
+  const [_selectedAlbum, setSelectedAlbum] = useState<string>();
 
   // Open Add Modal
   const handleOpenAddModal = () => {

@@ -2,14 +2,8 @@ import "../../components/css/Modal.css";
 import { RenderImageProps } from "react-photo-gallery";
 import "./photogrid.css";
 
-const imageStyle: React.FC<RenderImageProps> = ({ index, left, top, photo, margin, direction }) => {
+const imageStyle: React.FC<RenderImageProps> = ({ left, top, photo, margin, direction }) => {
   console.log(photo);
-  const cont = {
-    backgroundColor: "#eee",
-    cursor: "pointer",
-    overflow: "hidden",
-    position: "relative",
-  };
   //   const style: React.CSSProperties = {
   //     margin,
   //     position: direction === "column" ? "absolute" : "relative",
