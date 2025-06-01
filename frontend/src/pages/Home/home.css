@@ -1,0 +1,33 @@
+.main-grid-container{
+display:grid;
+grid-template-rows: auto;
+grid-template-areas: 
+  "navBar"
+  "body ";
+}
+.grid-navBar{
+    grid-area: navBar;
+}
+
+.grid-body{
+    grid-area:body;
+    padding-top: 100px;
+    color:white;
+    text-align: center;
+    font-family: 'Poppins-Light';
+    font-size: 2em;
+}
+
+/* img {
+  float: left;
+  width:  300px;
+  height: 300px;
+  object-fit: cover;
+} */
+
+.photo-grid{
+  display: grid;
+}
+.font{
+  font-family: 'Poppins-Regular';
+}

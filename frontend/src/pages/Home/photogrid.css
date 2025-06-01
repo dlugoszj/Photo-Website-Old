@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+.album-image{
+    object-fit:cover;
+    aspect-ratio: 3/2;
+    border-radius: 10px;
+    display: block;
+}
+  
+.albumHeading{
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    color:white;
+    text-align: center;
+    font-size:calc(.5em + 2.6vw);  
+}
+.font{
+    font-family: 'Poppins-Regular';
+}
+
+
+.admin-content{
+    display:flex;
+    justify-content: center;
+}
+
+.admin-content button {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    color: white;
+    padding: .75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 1rem;
+  }
+
+.delete-button{
+    background-color: #dc3121; /* blue-600 */
+    transition: background-color 0.2s ease;
+}
+
+.delete-button:hover{
+    background-color: #eb2525;
+
+}
+
+.edit-button{
+    background-color: #2563eb; /* blue-600 */
+    transition: background-color 0.2s ease;
+}
+
+.edit-button:hover{
+    background-color: #1d4ed8;
+
+}
+
+.add-button{
+    background-color: #2563eb; /* blue-600 */
+    transition: background-color 0.2s ease;
+}
+
+.add-button:hover{
+    background-color: #1d4ed8;
+
+}
+    
