@@ -4,7 +4,7 @@ name: Deploy Vite app to GitHub Pages
 on:
   push:
     branches:
-      - main   # or your default branch
+      - main # or your default branch
 
 jobs:
   build-and-deploy:
@@ -17,12 +17,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # or the node version you want
+          node-version: "18" # or the node version you want
 
       - name: Install dependencies
         run: |
           cd frontend
-          npm ci
+          npm install --legacy-peer-deps
 
       - name: Build the project
         run: |
