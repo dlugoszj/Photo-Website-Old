@@ -1,25 +1,15 @@
 import React, { useEffect, useState } from "react";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  updateDoc,
-  deleteDoc,
-  doc,
-  setDoc,
-  getDoc,
-  onSnapshot,
-} from "firebase/firestore";
-import { getStorage, ref, getDownloadURL, uploadBytes } from "firebase/storage";
-import { app } from "../../firebaseConfig"; // Ensure this points to your Firebase setup
-import "./photogrid.css";
+import { getFirestore, collection, onSnapshot } from "firebase/firestore";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
+import { app } from "../../firebaseConfig";
+import "./css/photogrid.css";
 import { Link, useLocation } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import NavBar from "../../components/NavBar";
-// import Modal from "../../components/Modal";
 import AddAlbumModal from "../../components/AddModal";
 import DeleteModal from "../../components/DeleteModal";
 import EditModal from "../../components/EditModal";
+import * as utils from "../../utils/utils";
 
 const db = getFirestore(app);
 const storage = getStorage(app);
@@ -27,127 +17,20 @@ const storage = getStorage(app);
 interface GalleryItem {
   id: string;
   title: string;
+  description: string;
   coverImageUrl: string;
+  updatedAt: Date;
 }
 
 type galleryType = {
   galleryType: string;
   collectionName?: string;
-  galleryTitle?: string;
   adminMode?: boolean;
 };
 
-const handleDelete = async (collection: string, docId: string) => {
-  await deleteDoc(doc(db, collection, docId))
-    .then((_snapshot) => {
-      console.log("Uploaded a blob or file!");
-    })
-    .catch((error) => {
-      console.error("Upload failed", error);
-    });
-  // Refresh your local state after deletion!
-};
-
-const handleUpdate = async (collection: string, docId: string, newTitle: string, newCoverImage: File | null) => {
-  //TODO Implement logic to handle only updating one field. Might have to do this in the editModal component
-  if (!newCoverImage && !newTitle) {
-    console.log("bruh");
-    return;
-  }
-  if (newCoverImage == null) {
-    await updateDoc(doc(db, collection, docId), { title: newTitle });
-  } else {
-    const storageRef = await ref(storage, "/" + newCoverImage.name);
-    await uploadBytes(storageRef, newCoverImage)
-      .then((_snapshot) => {
-        console.log("Uploaded a blob or file!");
-      })
-      .catch((error) => {
-        console.error("Upload failed", error);
-      });
-    await updateDoc(doc(db, collection, docId), { coverImageUrl: newCoverImage.name, title: newTitle });
-  }
-  if (collection == "albumCategories") {
-    await migrateGalleryDueToTitleChange(docId, newTitle);
-  } else {
-    const match = collection.match(/\/albumCategories\/([^/]+)\/albums/);
-    if (match) {
-      await migrateAlbumDueToTitleChange(docId, newTitle, match[1]);
-    } else {
-    }
-  }
-
-  // Refresh your local state after deletion!
-};
-
-const migrateAlbumDueToTitleChange = async (oldDocId: string, newDocId: string, albumCategory: string) => {
-  const oldCollectionRef = doc(db, "albumCategories", albumCategory, "albums", oldDocId);
-  const newCollectionRef = doc(db, "albumCategories", albumCategory, "albums", newDocId);
-  console.log("Got here");
-
-  const collectionSnapshot = await getDocs(collection(oldCollectionRef, "images"));
-  console.log(collectionSnapshot);
-
-  const hold = await getDoc(oldCollectionRef);
-  await setDoc(newCollectionRef, hold.data());
-
-  for (const docSnap of collectionSnapshot.docs) {
-    await setDoc(newCollectionRef, docSnap.data());
-  }
-  await deleteDoc(oldCollectionRef);
-};
-
-const migrateGalleryDueToTitleChange = async (oldDocId: string, newDocId: string) => {
-  const oldCollectionRef = doc(db, "albumCategories", oldDocId);
-  const newCollectionRef = doc(db, "albumCategories", newDocId);
-
-  const collectionSnapshot = await getDocs(collection(oldCollectionRef, "albums"));
-
-  const hold = await getDoc(oldCollectionRef);
-  await setDoc(newCollectionRef, hold.data());
-
-  for (const docSnap of collectionSnapshot.docs) {
-    const newAlbumRef = doc(newCollectionRef, "albums", docSnap.id);
-    await setDoc(newAlbumRef, docSnap.data());
-
-    const imagesSnap = await getDocs(collection(docSnap.ref, "images"));
-    for (const imageDoc of imagesSnap.docs) {
-      const newImageRef = doc(newAlbumRef, "images", imageDoc.id);
-      await setDoc(newImageRef, imageDoc.data());
-    }
-  }
-  await deleteDoc(oldCollectionRef);
-};
-
-const handleSaveAlbum = async (title: string, file: File | null, collectionPath: string) => {
-  if (file == null) {
-    return;
-  }
-
-  console.log(collectionPath);
-  const storageRef = await ref(storage, "/" + file.name);
-  await uploadBytes(storageRef, file)
-    .then((_snapshot) => {
-      console.log("Uploaded a blob or file!");
-    })
-    .catch((error) => {
-      console.error("Upload failed", error);
-    });
-  await setDoc(doc(db, collectionPath, title), {
-    coverImageUrl: file.name,
-    title: title,
-    id: title,
-  });
-};
-
-const GenericGallery: React.FC<galleryType> = ({
-  galleryType,
-  collectionName = "",
-  galleryTitle = "",
-  adminMode = false,
-}) => {
+const GenericGallery: React.FC<galleryType> = ({ galleryType, collectionName = "", adminMode = false }) => {
   let pathLink = "";
-  const { categoryId } = useParams();
+  const { categoryId = "" } = useParams<{ categoryId: string }>();
   const adminPath: string = adminMode ? "admin/" : "";
 
   const [openModal, setOpenModal] = useState<null | "add" | "delete" | "edit">(null);
@@ -176,18 +59,27 @@ const GenericGallery: React.FC<galleryType> = ({
     setOpenModal(null);
   };
 
-  if (galleryType == "album" && !categoryId) {
-    return <div className="text-white">Invalid gallery ID</div>;
-  }
-
   if (galleryType == "album") {
     pathLink = categoryId + "/";
     collectionName = "/albumCategories/" + categoryId + "/albums";
-    galleryTitle = categoryId ?? "";
   }
 
   const [galleries, setGalleries] = useState<GalleryItem[]>([]);
+  const [galleryTitle, setGalleryTitle] = useState<string>("");
   const location = useLocation();
+
+  useEffect(() => {
+    const fetchTitle = async () => {
+      if (galleryType === "album") {
+        const firebaseDocumentPath = "/albumCategories/" + categoryId;
+        const name = await utils.getDocumentName(firebaseDocumentPath);
+        setGalleryTitle(name);
+      } else {
+        setGalleryTitle("GALLERY");
+      }
+    };
+    fetchTitle();
+  }, [galleryType, categoryId]);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, collectionName), async (snapshot) => {
@@ -195,7 +87,13 @@ const GenericGallery: React.FC<galleryType> = ({
         snapshot.docs.map(async (doc) => {
           const data = doc.data();
           const url = await getDownloadURL(ref(storage, data.coverImageUrl));
-          return { id: doc.id, title: data.title, coverImageUrl: url };
+          return {
+            id: doc.id,
+            title: data.title,
+            description: data.description,
+            coverImageUrl: url,
+            updatedAt: data.updatedAt,
+          };
         })
       );
       setGalleries(updatedAlbums);
@@ -207,14 +105,14 @@ const GenericGallery: React.FC<galleryType> = ({
   return (
     <div className="">
       <NavBar />
-      <div className="albumHeading">{galleryTitle.toUpperCase().split("").join(" ")}</div>
+      <div className="albumHeading">{galleryTitle.toUpperCase().split("").join("\u00A0")}</div>
       {adminMode && (
         <div className="admin-content text-neutral-200 ">
           <button onClick={handleOpenAddModal} className="add-button">
             Add
           </button>
           {openModal == "add" && (
-            <AddAlbumModal onClose={handleCloseModal} onSave={handleSaveAlbum} collectionPath={collectionName} />
+            <AddAlbumModal onClose={handleCloseModal} onSave={utils.handleSaveAlbum} collectionPath={collectionName} />
           )}
         </div>
       )}
@@ -226,7 +124,7 @@ const GenericGallery: React.FC<galleryType> = ({
                 <img src={gallery.coverImageUrl} alt={gallery.title} className="album-image" />
                 <div className="mt-4 text-center text-neutral-200">
                   <strong>{gallery.title}</strong>
-                  <p className="text-xs">{gallery.title}</p>
+                  <p className="text-xs">{gallery.description}</p>
                 </div>
               </div>
             </Link>
@@ -239,7 +137,7 @@ const GenericGallery: React.FC<galleryType> = ({
                   {openModal == "delete" && selectedAlbum == gallery.id && (
                     <DeleteModal
                       onClose={handleCloseModal}
-                      onDelete={handleDelete}
+                      onDelete={utils.handleDelete}
                       collectionPath={collectionName}
                       galleryName={gallery.id}
                     />
@@ -252,12 +150,12 @@ const GenericGallery: React.FC<galleryType> = ({
                   {openModal == "edit" && selectedAlbum == gallery.id && (
                     <EditModal
                       onClose={handleCloseModal}
-                      onEdit={handleUpdate}
+                      onEdit={utils.handleUpdate}
                       collectionPath={collectionName}
                       galleryName={gallery.id}
                     />
                   )}
-                </div>{" "}
+                </div>
               </div>
             )}
           </div>

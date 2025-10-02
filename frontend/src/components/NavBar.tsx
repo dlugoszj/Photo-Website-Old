@@ -1,7 +1,8 @@
 // import React from "react";
 
 import "./css/Menus.css";
-import "../../public/css/fonts.css";
+import "../assets/css/fonts.css";
+import { Link } from "react-router-dom";
 
 const NavBar = () => {
   return (
@@ -9,16 +10,19 @@ const NavBar = () => {
       <div className="nav-bar-home">
         <div className="krzysztof">
           <span className="lg-view">
-            <a href="/tatanka/gallery">K R Z Y S Z T O F &nbsp; D L U G O S Z</a>
+            <Link to="/">K R Z Y S Z T O F &nbsp; D L U G O S Z</Link>
           </span>
           <span className="sm-view">
-            <a href="/tatanka/gallery">
+            {/* <a href="/tatanka/gallery"> */}
+            <Link to="/">
               K R Z Y S Z T O F <br /> D L U G O S Z
-            </a>
+            </Link>
+            {/* </a> */}
           </span>
         </div>
         <div className="other-menu-opts">
-          <a href="/tatanka/gallery"> PORTFOLIO </a>
+          <Link to="/"> PORTFOLIO </Link>
+          {/* TODO Fix these links when a page is created for them */}
           <a href="/tatanka/blog"> BLOG </a>
           <a href="/"> ABOUT </a>
         </div>

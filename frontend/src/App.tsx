@@ -24,12 +24,7 @@ function App() {
             path="/admin"
             element={
               <ProtectedRoute>
-                <GenericGallery
-                  galleryType="gallery"
-                  collectionName="albumCategories"
-                  galleryTitle="GALLERY"
-                  adminMode={true}
-                />
+                <GenericGallery galleryType="gallery" collectionName="albumCategories" adminMode={true} />
               </ProtectedRoute>
             }
           />

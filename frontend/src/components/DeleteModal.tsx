@@ -15,9 +15,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ onClose, onDelete, collection
     onDelete(collectionPath, galleryName);
     onClose();
   };
-  console.log("Del MODAL!");
-  console.log(collectionPath);
-  console.log(galleryName);
+
   return (
     <Modal onClose={onClose}>
       <h2>Delete Album</h2>

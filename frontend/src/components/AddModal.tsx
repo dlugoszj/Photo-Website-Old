@@ -4,18 +4,19 @@ import "./css/Modal.css";
 
 interface AddAlbumModalProps {
   onClose: () => void;
-  onSave: (title: string, file: File | null, collectionPath: string) => void;
+  onSave: (title: string, description: string, file: File | null, collectionPath: string) => void;
   collectionPath: string;
 }
 
 const AddAlbumModal: React.FC<AddAlbumModalProps> = ({ onClose, onSave, collectionPath }) => {
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const isSaveDisabled = !title.trim() || !file;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(title, file, collectionPath);
+    onSave(title, description, file, collectionPath);
     onClose();
   };
 
@@ -28,6 +29,13 @@ const AddAlbumModal: React.FC<AddAlbumModalProps> = ({ onClose, onSave, collecti
           placeholder="Album Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Album Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           required
         />
         <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />

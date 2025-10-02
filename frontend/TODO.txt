@@ -1,0 +1,13 @@
+Make another github project and refactor/clean up the code to make it easier to maintain
+
+Allow for multiple images to be added at a time for image galleries
+
+Add file format conversion
+    Create callable cloud function to do conversion
+    Might have to change the way I display functions
+
+Maybe fix containers to display images better, not sure if Ill do this one, might be too much work
+
+Add some error checking for the URLS
+
+Create blog website

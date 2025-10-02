@@ -32,7 +32,6 @@ const AddImageModal: React.FC<AddAlbumModalProps> = ({ onClose, onSave, collecti
       };
       reader.readAsDataURL(selectedFile);
     } else {
-      console.log("selfile null");
       setWidth(0);
       setHeight(0);
     }
