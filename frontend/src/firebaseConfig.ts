@@ -4,14 +4,14 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBL_41dC7dPVg8gBxfQ7CO50CRfFkBDEW0",
-    authDomain: "tata-s-photography.firebaseapp.com",
-    projectId: "tata-s-photography",
-    storageBucket: "tata-s-photography.appspot.com",
-    messagingSenderId: "882623239114",
-    appId: "1:882623239114:web:08c807c7c9705dea657533",
-    measurementId: "G-RGKVDBCEMC"
-  };
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: "tata-s-photography.firebaseapp.com",
+  projectId: "tata-s-photography",
+  storageBucket: "tata-s-photography.appspot.com",
+  messagingSenderId: "882623239114",
+  appId: "1:882623239114:web:08c807c7c9705dea657533",
+  measurementId: "G-RGKVDBCEMC"
+};
 
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);

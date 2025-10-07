@@ -4,8 +4,8 @@ import "./css/home.css";
 import "/src/assets/css/fonts.css";
 import "./css/photogrid.css";
 import React, { useEffect, useState } from "react";
-import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc, getDoc } from "firebase/firestore";
-import { getStorage, ref, getDownloadURL, uploadBytes, deleteObject } from "firebase/storage";
+import { getFirestore, collection, doc, onSnapshot, deleteDoc, getDoc } from "firebase/firestore";
+import { getStorage, ref, getDownloadURL, deleteObject } from "firebase/storage";
 import { app } from "../../firebaseConfig";
 import Gallery from "react-photo-gallery";
 import { RenderImageProps } from "react-photo-gallery";
@@ -27,31 +27,20 @@ interface Photo {
 interface ImageGalleryInfo {
   adminMode?: boolean;
 }
-const handleAddImage = async (imageHeight: number, imageWidth: number, file: File | null, collectionPath: string) => {
-  if (file == null) {
+const handleAddImage = async (files: FileList | null, collectionPath: string) => {
+  if (files == null) {
     return;
   }
-  //TODO change slightly to fit image upload
-  console.log(file.type);
-  // Create reference to new document in Firestore
-  const docRef = doc(collection(db, collectionPath));
 
-  // Create reference to storage in firebase using the newly created document ID
-  const storageRef = await ref(storage, "/" + collectionPath + docRef.id);
+  for (const file of files) {
+    const docRef = doc(collection(db, collectionPath));
+    const filePath = collectionPath + docRef.id;
+    // Create reference to storage in firebase using the newly created document ID
+    const storageRef = await ref(storage, filePath);
 
-  // Upload the file to storage in firebase
-  await utils.uploadImage(file, storageRef);
-
-  const originalImageURL = collectionPath + docRef.id;
-
-  // Set the document fields in Firestore
-  await setDoc(docRef, {
-    imageURL: originalImageURL,
-    fullSizedImageURL: originalImageURL,
-    thumbnailURL: originalImageURL,
-    width: imageWidth,
-    height: imageHeight,
-  });
+    // Upload the file to storage in firebase
+    await utils.uploadImage(file, storageRef, docRef, filePath);
+  }
 };
 
 const handleDelete = async (collection: string, docId: string) => {
@@ -59,6 +48,7 @@ const handleDelete = async (collection: string, docId: string) => {
   const docObject = await getDoc(docRef);
   console.log("DOC ID");
   console.log(docId);
+  console.log("getting rid of warnings " + collection);
 
   await deleteDoc(doc(db, docId))
     .then((_snapshot) => {

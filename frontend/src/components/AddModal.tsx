@@ -12,7 +12,7 @@ const AddAlbumModal: React.FC<AddAlbumModalProps> = ({ onClose, onSave, collecti
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const isSaveDisabled = !title.trim() || !file;
+  const isSaveDisabled = !title.trim() || !file || !description.trim();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

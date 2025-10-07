@@ -4,50 +4,29 @@ import "./css/Modal.css";
 
 interface AddAlbumModalProps {
   onClose: () => void;
-  onSave: (imageHeight: number, imageWidth: number, file: File | null, collectionPath: string) => void;
+  onSave: (files: FileList | null, collectionPath: string) => void;
   collectionPath: string;
 }
 
 const AddImageModal: React.FC<AddAlbumModalProps> = ({ onClose, onSave, collectionPath }) => {
-  //   const [title, setTitle] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const isSaveDisabled = !file;
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
+  const [files, setFiles] = useState<FileList | null>(null);
+  const isSaveDisabled = !files || files.length > 5;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0] || null;
-    setFile(selectedFile);
-
-    if (selectedFile) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          setWidth(img.naturalWidth);
-          setHeight(img.naturalHeight);
-          console.log(`Image dimensions: ${img.width}x${img.height}`);
-        };
-        img.src = event.target?.result as string;
-      };
-      reader.readAsDataURL(selectedFile);
-    } else {
-      setWidth(0);
-      setHeight(0);
-    }
+    setFiles(e.target.files);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(height, width, file, collectionPath);
+    onSave(files, collectionPath);
     onClose();
   };
 
   return (
     <Modal onClose={onClose}>
-      <h2>Add Image</h2>
+      <h2>Add Images (Maximum of 5 Images at a Time)</h2>
       <form onSubmit={handleSubmit}>
-        <input type="file" accept="image/*" onChange={handleFileChange} />
+        <input type="file" accept="image/*" onChange={handleFileChange} multiple />
         <button type="submit" disabled={isSaveDisabled} className="save-button">
           Save
         </button>

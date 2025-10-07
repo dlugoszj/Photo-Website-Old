@@ -3,19 +3,17 @@ import {
   collection,
   updateDoc,
   doc,
-  setDoc,
   getDoc,
   DocumentReference,
-  or,
 } from "firebase/firestore";
 
-import { getStorage, ref, getDownloadURL, uploadBytes, deleteObject, listAll, StorageReference } from "firebase/storage";
+import { getStorage, ref, uploadBytes, deleteObject, listAll, StorageReference } from "firebase/storage";
 import { app } from "../firebaseConfig";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import pica from "pica";
-import heic2any from "heic2any";
+// import heic2any from "heic2any";
 
-const functions = getFunctions();
+const functions = getFunctions(app, "us-central1");
 
 
 
@@ -53,8 +51,11 @@ export const handleUpdate = async (collection: string, docId: string, newTitle: 
           console.error("Error occurred in deleting file from Firebase storage", error);
       });
       const storageRef = await ref(storage, docObject.data().coverImageUrl);
-      await uploadImage(newCoverImage, storageRef)
-      await updateDoc(doc(db, collection, docId), { updatedAt: Date.now() });
+      //TODO Implement this real quick
+      const filePath =  docObject.data().coverImageUrl;
+      console.log("Update file path " + filePath);
+      await uploadImage(newCoverImage, storageRef, docRef, filePath)
+      // await updateDoc(doc(db, collection, docId), { updatedAt: Date.now() });
     }
 
   }
@@ -68,18 +69,18 @@ export const handleSaveAlbum = async (title: string, description: string, file: 
   }
 
   const docRef = doc(collection(db, collectionPath));
-
+  const filePath = collectionPath + "/" + docRef.id + "/cover";
   const firebaseStorageRef = await ref(storage, "/" + collectionPath + "/" + docRef.id + "/cover");
+  console.log(filePath.substring(0, filePath.lastIndexOf("/")));
+  await uploadImage(file, firebaseStorageRef, docRef, filePath, title, description );
 
-  await uploadImage(file, firebaseStorageRef);
-
-  await setDoc(docRef, {
-    coverImageUrl:  collectionPath + "/" + docRef.id + "/cover",
-    title: title,
-    description: description,
-    id: docRef.id,
-    updatedAt: Date.now()
-  });
+  // await setDoc(docRef, {
+  //   coverImageUrl:  collectionPath + "/" + docRef.id + "/cover",
+  //   title: title,
+  //   description: description,
+  //   id: docRef.id,
+  //   updatedAt: Date.now()
+  // });
 };
 
 export const handleDeleteStorage = async (firebaseStoragePath: string) => {
@@ -120,21 +121,49 @@ export const getDocumentName = async (firebaseDocumentPath: string) => {
 
 
 
-export const uploadImage = async (file: File, storageRef: StorageReference) => {
+export const uploadImage = async (file: File, storageRef: StorageReference, docRef: DocumentReference, filePath: string, albumTitle: string = "", albumDescription: string ="") => {
     let processedFile: Blob = file;
 
-    if(file.type == "image/heic" && file.type == "image/heic"){
-      processedFile = await convertHEICtoJPEG(file);
+    if(file.type != "image/heic" && file.type != "image/heic"){
+      const resizedBlob = await resizeImage(processedFile);
+      processedFile = resizedBlob;
     }
-    const resizedBlob = await resizeImage(processedFile);
 
-    await uploadBytes(storageRef, resizedBlob)
+    await uploadBytes(storageRef, processedFile)
       .then((_snapshot) => {
         console.log("Uploaded an album/category NEWNEWN");
       })
       .catch((error) => {
         console.error("Upload failed", error);
       });
+
+    const testFunction = httpsCallable(functions, "testFunction");
+    try{
+      await testFunction();
+      console.log("Succesfully processed " + filePath);
+    }
+    catch (error){
+      console.log("Error test");
+      console.error("❌ processImage failed:", error);
+  }
+    console.log("File Path " + filePath);
+    console.log("Title " + albumTitle);
+    console.log("Desc " + albumDescription);
+    console.log("doc id " + docRef.id);
+
+
+    const processImage = httpsCallable(functions, "processImage");
+    try{
+      await processImage({filePath:filePath, docRef:docRef.id, albumTitle:albumTitle, albumDescription:albumDescription});
+      // await processImage({});
+
+      console.log("Succesfully processed " + filePath);
+    }
+    catch (error){
+      console.log("Error processing" + filePath);
+      console.error("❌ processImage failed:", error);
+  }
+
 }
 
 
@@ -185,18 +214,18 @@ export function loadImage(file: Blob): Promise<HTMLImageElement> {
   });
 }
 
-async function convertHEICtoJPEG(file: File): Promise<Blob> {
-  const convertedImage = await heic2any({
-    blob: file,
-    toType: "image/jpeg",
-    quality: 1.0,
-  });
+// async function convertHEICtoJPEG(file: File): Promise<Blob> {
+//   const convertedImage = await heic2any({
+//     blob: file,
+//     toType: "image/jpeg",
+//     quality: 1.0,
+//   });
 
-  if(Array.isArray(convertedImage)){
-    return convertedImage[0];
-  }
-  else{
-    return convertedImage;
-  }
+//   if(Array.isArray(convertedImage)){
+//     return convertedImage[0];
+//   }
+//   else{
+//     return convertedImage;
+//   }
 
-}
+// }

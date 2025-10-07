@@ -61,7 +61,7 @@ const GenericGallery: React.FC<galleryType> = ({ galleryType, collectionName = "
 
   if (galleryType == "album") {
     pathLink = categoryId + "/";
-    collectionName = "/albumCategories/" + categoryId + "/albums";
+    collectionName = "albumCategories/" + categoryId + "/albums";
   }
 
   const [galleries, setGalleries] = useState<GalleryItem[]>([]);
