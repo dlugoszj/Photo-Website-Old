@@ -27,7 +27,7 @@
     "rules": "storage.rules"
   },
   "hosting": {
-    "public": "public",
+    "public": "dist",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -35,7 +35,7 @@
     ],
     "rewrites": [
       {
-        "source": "**",
+      "source": "!**/*.@(js|css|map|ico|png|jpg|svg|json)",
         "destination": "/index.html"
       }
     ]

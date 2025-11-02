@@ -11,7 +11,6 @@ import { getStorage, ref, uploadBytes, deleteObject, listAll, StorageReference }
 import { app } from "../firebaseConfig";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import pica from "pica";
-// import heic2any from "heic2any";
 
 const functions = getFunctions(app, "us-central1");
 
@@ -33,9 +32,11 @@ export const handleUpdate = async (collection: string, docId: string, newTitle: 
   if (newTitle != "") {
     await updateDoc(doc(db, collection, docId), { title: newTitle, updatedAt: Date.now()});
   }
+  // Only update the description
   if (newDescription != "") {
     await updateDoc(doc(db, collection, docId), { description: newDescription, updatedAt: Date.now()});
-  }  
+  } 
+  // Only update the cover photo
   if(newCoverImage != null ) {
 
     const docRef = doc(db, collection, docId);
@@ -53,9 +54,7 @@ export const handleUpdate = async (collection: string, docId: string, newTitle: 
       const storageRef = await ref(storage, docObject.data().coverImageUrl);
       //TODO Implement this real quick
       const filePath =  docObject.data().coverImageUrl;
-      console.log("Update file path " + filePath);
       await uploadImage(newCoverImage, storageRef, docRef, filePath)
-      // await updateDoc(doc(db, collection, docId), { updatedAt: Date.now() });
     }
 
   }
@@ -71,16 +70,8 @@ export const handleSaveAlbum = async (title: string, description: string, file: 
   const docRef = doc(collection(db, collectionPath));
   const filePath = collectionPath + "/" + docRef.id + "/cover";
   const firebaseStorageRef = await ref(storage, "/" + collectionPath + "/" + docRef.id + "/cover");
-  console.log(filePath.substring(0, filePath.lastIndexOf("/")));
   await uploadImage(file, firebaseStorageRef, docRef, filePath, title, description );
 
-  // await setDoc(docRef, {
-  //   coverImageUrl:  collectionPath + "/" + docRef.id + "/cover",
-  //   title: title,
-  //   description: description,
-  //   id: docRef.id,
-  //   updatedAt: Date.now()
-  // });
 };
 
 export const handleDeleteStorage = async (firebaseStoragePath: string) => {
@@ -136,20 +127,6 @@ export const uploadImage = async (file: File, storageRef: StorageReference, docR
       .catch((error) => {
         console.error("Upload failed", error);
       });
-
-    const testFunction = httpsCallable(functions, "testFunction");
-    try{
-      await testFunction();
-      console.log("Succesfully processed " + filePath);
-    }
-    catch (error){
-      console.log("Error test");
-      console.error("❌ processImage failed:", error);
-  }
-    console.log("File Path " + filePath);
-    console.log("Title " + albumTitle);
-    console.log("Desc " + albumDescription);
-    console.log("doc id " + docRef.id);
 
 
     const processImage = httpsCallable(functions, "processImage");
@@ -214,18 +191,3 @@ export function loadImage(file: Blob): Promise<HTMLImageElement> {
   });
 }
 
-// async function convertHEICtoJPEG(file: File): Promise<Blob> {
-//   const convertedImage = await heic2any({
-//     blob: file,
-//     toType: "image/jpeg",
-//     quality: 1.0,
-//   });
-
-//   if(Array.isArray(convertedImage)){
-//     return convertedImage[0];
-//   }
-//   else{
-//     return convertedImage;
-//   }
-
-// }

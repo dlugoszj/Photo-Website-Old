@@ -46,9 +46,6 @@ const handleAddImage = async (files: FileList | null, collectionPath: string) =>
 const handleDelete = async (collection: string, docId: string) => {
   const docRef = doc(db, docId);
   const docObject = await getDoc(docRef);
-  console.log("DOC ID");
-  console.log(docId);
-  console.log("getting rid of warnings " + collection);
 
   await deleteDoc(doc(db, docId))
     .then((_snapshot) => {
@@ -72,22 +69,9 @@ const handleDelete = async (collection: string, docId: string) => {
       .catch((error) => {
         console.error("Error occurred in deleting file from Firebase storage", error);
       });
-    // await deleteObject(ref(storage, docObject.data().imageURL));
-    // await deleteObject(ref(storage, docObject.data().thumbnailURL));
   } else {
     console.log("did not enter");
   }
-
-  // let deleteArray = [docId, docId + "_700x700", docId + "_2000x2000"];
-  // for (let i: number = 0; i < deleteArray.length; i++) {
-  // await deleteObject(ref(storage, deleteArray[i]))
-  //   .then(() => {
-  //     console.log("Deleted ", deleteArray[i]);
-  //   })
-  //   .catch((error) => {
-  //     console.error("Error occurred in deleting file from Firebase storage", error);
-  // });
-  // }
 };
 
 const ImageGallery: React.FC<ImageGalleryInfo> = ({ adminMode = false }) => {
@@ -143,7 +127,6 @@ const ImageGallery: React.FC<ImageGalleryInfo> = ({ adminMode = false }) => {
     setOpenModal(null);
   };
 
-  // const customRenderImage: React.FC<RenderImageProps> = (props) => <ImageStyle {...props} />;
   const customRenderImage: React.FC<RenderImageProps> = ({ photo, index, left, top, margin, direction }) => {
     const customPhoto = photo as Photo;
     return (
